@@ -1,0 +1,36 @@
+from flask import Flask, request, jsonify, send_file
+import numpy as np
+import cv2
+import io
+from PIL import Image
+
+app = Flask(__name__)
+
+@app.route('/generate-design', methods=['POST'])
+def generate_design():
+    data = request.json
+    colors = data['colors']
+    # Generate tile design
+    design = generate_tile_design(colors, 10, 10)  # Example dimensions
+    return jsonify(design)
+
+@app.route('/apply-design', methods=['POST'])
+def apply_design():
+    image = request.files['image'].read()
+    # Convert to PIL Image
+    image = Image.open(io.BytesIO(image))
+    # Apply design
+    # Placeholder for actual design application
+    # Save the image with applied design
+    output = io.BytesIO()
+    image.save(output, format='PNG')
+    output.seek(0)
+    return send_file(output, mimetype='image/png', as_attachment=True, attachment_filename='design.png')
+
+def generate_tile_design(colors, num_rows, num_cols):
+    # Example tile design logic
+    design = [[colors[np.random.choice(len(colors))] for _ in range(num_cols)] for _ in range(num_rows)]
+    return design
+
+if __name__ == '__main__':
+    app.run(debug=True)
