@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tile Design Tool</title>
+</head>
+<body>
+    <h2>Select Colors for Tile Design</h2>
+    <label for="color1">Color 1:</label>
+    <input type="color" id="color1" name="color1" value="#ff0000">
+    <br>
+    <label for="color2">Color 2:</label>
+    <input type="color" id="color2" name="color2" value="#00ff00">
+    <br>
+    <label for="color3">Color 3:</label>
+    <input type="color" id="color3" name="color3" value="#0000ff">
+    <br>
+    <button onclick="generateDesign()">Generate Design</button>
+    <br>
+    <input type="file" id="imageUpload" accept="image/*">
+    <br>
+    <button onclick="applyDesign()">Apply Design</button>
+    <br>
+    <img id="tileImage" src="" alt="Tile Image" style="display: none;">
+    <div id="design"></div>
+
+    <script>
+        function generateDesign() {
+            const color1 = document.getElementById('color1').value;
+            const color2 = document.getElementById('color2').value;
+            const color3 = document.getElementById('color3').value;
+            const colors = [color1, color2, color3];
+            
+            fetch('/generate-design', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ colors })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display generated design
+                document.getElementById('design').innerHTML = `Design: ${JSON.stringify(data)}`;
+            });
+        }
+
+        function applyDesign() {
+            const imageFile = document.getElementById('imageUpload').files[0];
+            const formData = new FormData();
+            formData.append('image', imageFile);
+
+            fetch('/apply-design', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                document.getElementById('tileImage').src = url;
+                document.getElementById('tileImage').style.display = 'block';
+            });
+        }
+    </script>
+</body>
+</html>
